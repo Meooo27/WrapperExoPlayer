@@ -60,3 +60,63 @@ dependencies {
     implementation(project(":media3lib-common"))
     implementation(project(":media3lib-datasource"))
 }
+
+tasks.register<Jar>("fatJar") {
+
+    archiveBaseName.set("simpleplayer-fat")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    val modules = listOf(
+        ":media3lib-common",
+        ":media3lib-exoplayer",
+        ":media3lib-datasource",
+        ":media3lib-extractor",
+        ":media3lib-decoder",
+        ":media3lib-container",
+        ":media3lib-ui",
+        ":media3test-utils",
+        ":media3test-utils-robolectric",
+        ":media3lib-database",
+        ":media3test-data",
+        ":media3lib-inspector",
+        ":media3lib-effect",
+        ":media3lib-transformer",
+        ":media3lib-muxer",
+        ":media3lib-exoplayer-dash",
+    )
+
+    // 🔥 đảm bảo build trước
+    dependsOn(modules.map { "$it:assembleRelease" })
+    dependsOn("assembleRelease")
+
+    doFirst {
+
+        val buildDir = layout.buildDirectory.get().asFile
+
+        // class app
+        from("${buildDir}/intermediates/javac/release/classes")
+        from("${buildDir}/tmp/kotlin-classes/release")
+
+        modules.forEach { path ->
+
+            val aarFile = project(path)
+                .layout.buildDirectory
+                .file("outputs/aar/${project(path).name}-release.aar")
+                .get()
+                .asFile
+
+            if (!aarFile.exists()) {
+                throw GradleException("AAR not found: $aarFile")
+            }
+
+            // extract classes.jar trong AAR
+            from(zipTree(aarFile).matching {
+                include("classes.jar")
+            }.map { zipTree(it) })
+        }
+    }
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+}
