@@ -44,6 +44,7 @@ include(
     ":media3lib-transformer",
     ":media3lib-muxer",
     ":media3lib-exoplayer-dash",
+    ":media3lib-inspector-frame",
 )
 
 project(":media3lib-common").projectDir = File(mediaDir, "libraries/common")
@@ -62,3 +63,4 @@ project(":media3lib-effect").projectDir = File(mediaDir, "libraries/effect")
 project(":media3lib-transformer").projectDir = File(mediaDir, "libraries/transformer")
 project(":media3lib-muxer").projectDir = File(mediaDir, "libraries/muxer")
 project(":media3lib-exoplayer-dash").projectDir = File(mediaDir, "libraries/exoplayer_dash")
+project(":media3lib-inspector-frame").projectDir = File(mediaDir, "libraries/inspector_frame")
